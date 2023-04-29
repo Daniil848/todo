@@ -1,31 +1,20 @@
-import { useState } from "react";
+import { useState, FC } from "react";
+import { useAppSelector, useAppDispatch } from "../app/hooks";
+import Tasks from "./Tasks";
+import { addTask } from "../app/todoSlice";
 
-interface task {
-  id : number,
-  text : string,
-  completed : boolean,
-}
-
-const Todo = () => {
-  const [tasks, setTasks] = useState<Array<task>>([]);
-  const [text, setText] = useState<string>("");
-
-  const task : task = {
-    id : tasks.length + 1,
-    text : text,
-    completed : false,
-  }
-
-  const addTask = () => {
-    if (text === "") {
-      return;
-    }
-    setTasks((t) => [...t, task]);
-    setText("");
-    
-    console.log(task); 
+const Todo: FC = () => {  
+  const tasks = useAppSelector(state => state.tasks.tasks);
+  const dispatch = useAppDispatch();
+  const [text, setText] = useState<string>('');
+  
+  const addTodo = () => {
+    dispatch(addTask(text));
+    setText('');
   };
+  
   console.log(tasks);
+  
   return (
     <div>
       <div>
@@ -34,13 +23,11 @@ const Todo = () => {
           value={text}
           onChange={e => setText(e.target.value)}
         ></input>
-        <button onClick={() => addTask()}>OK</button>
+        <button onClick={addTodo}>OK</button>
       </div>
       {tasks.map((el, index) => {
         return (
-          <div className="tasks" key={index}>
-            <p>{el.text}</p>
-          </div>
+          <Tasks id={el.id} text={el.text} comlete={el.complete} key={index}></Tasks>
         )
       })}
     </div>
