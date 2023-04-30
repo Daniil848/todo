@@ -1,7 +1,8 @@
 import { FC } from "react";
 import { useAppDispatch } from "../app/hooks";
 import { delteTask, toggleComplete } from "../app/todoSlice";
-import { Button, Checkbox, Box, Typography } from "@mui/joy";
+import { Chip, Checkbox, Box, Typography } from "@mui/joy";
+import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
 
 interface ITasksProps {
@@ -24,10 +25,10 @@ const styles = {
     borderColor: '#1a7d36',
     borderRadius : '10px',
   },
-  button : {
-    width : '35px',
-    height : '30px',
-    boxSizing : 'border-box'
+  chip : {
+    width : '40px',
+    paddingTop: '3px',
+    "--Chip-paddingInline" : "0px",
   },
   typography : {
     color : 'white',
@@ -50,11 +51,11 @@ const Tasks: FC<ITasksProps> = (props) => {
       <Typography 
         sx={styles.typography}
       >{props.text}</Typography>
-      <Button
+      <Chip
         color="success"
-        sx={styles.button}
+        sx={styles.chip}
         onClick={() => dispatch(delteTask(props.id))}
-      ></Button>
+      ><DeleteTwoToneIcon></DeleteTwoToneIcon></Chip>
     </Box>
   )
 };
