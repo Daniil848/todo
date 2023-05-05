@@ -1,14 +1,14 @@
 import { FC } from "react";
 import { useAppDispatch } from "../app/hooks";
-import { delteTask, toggleComplete } from "../app/todoSlice";
+import { deleteTask, toggleComplete } from "../app/todoSlice";
 import { Chip, Checkbox, Box, Typography } from "@mui/joy";
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 
 
 interface ITasksProps {
-  id : string,
+  id : number,
   text : string,
-  comlete : boolean,
+  complete : boolean,
 }
 
 const styles = {
@@ -46,7 +46,12 @@ const Tasks: FC<ITasksProps> = (props) => {
     <Box sx={styles.box}>
       <Checkbox
         color="success"
-        onChange={() => dispatch(toggleComplete(props.id))}
+        checked={props.complete}
+        onChange={() => dispatch(toggleComplete({
+          id : props.id,
+          text : props.text,
+          complete : props.complete,
+        }))}
       ></Checkbox>
       <Typography 
         sx={styles.typography}
@@ -54,7 +59,7 @@ const Tasks: FC<ITasksProps> = (props) => {
       <Chip
         color="success"
         sx={styles.chip}
-        onClick={() => dispatch(delteTask(props.id))}
+        onClick={() => dispatch(deleteTask(props.id))}
       ><DeleteTwoToneIcon></DeleteTwoToneIcon></Chip>
     </Box>
   )

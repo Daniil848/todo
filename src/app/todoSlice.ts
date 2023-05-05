@@ -1,47 +1,111 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 interface ITask {
-  id : string;
+  id : number;
   text : string;
   complete : boolean;
 }
 
 export interface IState {
   tasks : ITask[];
+  loading : boolean,
+  error : null | string,
 }
 
 const initialState: IState = {
   tasks : [],
+  loading : false,
+  error : null,
 }
-console.log(initialState);
 
+export const fetchTasks = createAsyncThunk<ITask[], undefined>(
+  'todo/fetchTasks',
+  async () => {
+    const response = await fetch('http://localhost:3001/todo');
+    return response.json();
+  }
+);
+
+
+export const addTask = createAsyncThunk<ITask, string>(
+  'todo/addTask',
+  async (text) => {
+
+    const data = {
+      id : 0,
+      text: text,
+      complete : false,
+    }
+
+    const response = await fetch('http://localhost:3001/todo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    return response.json();
+  }
+);
+export const deleteTask = createAsyncThunk<number, number>(
+  'todo/deleteTask',
+  async (id) => {
+    const response = await fetch(`http://localhost:3001/todo/${id}`, {
+      method: 'DELETE',
+    });
+
+    return id;
+  }
+);
+export const toggleComplete = createAsyncThunk<ITask, ITask>(
+  'todo/toggleComplete',
+  async ({id, text, complete}) => { 
+    const response = await fetch(`http://localhost:3001/todo/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: text,
+        complete: !complete,
+      })
+    });
+
+    return response.json();
+  }
+);
 
 export const todoSlice = createSlice({
   name : "todo",
   initialState,
-  reducers: {
-    addTask: (state, action: PayloadAction<string>) => {
-      console.log(state);
-      console.log(action);
-      
-      state.tasks.push({
-        id : new Date().toISOString(),
-        text: action.payload,
-        complete : false,
-      });
-    },
-    delteTask : (state, action: PayloadAction<string>) => {
-      state.tasks = state.tasks.filter(task => task.id !== action.payload);
-    },
-    toggleComplete: (state, action: PayloadAction<string>) => {
-      const completeTask = state.tasks.find(task => task.id === action.payload);
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+    .addCase(fetchTasks.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchTasks.fulfilled, (state, action) => {
+      state.tasks = action.payload;
+      state.loading = false;
+    })
+    .addCase(addTask.pending, (state) => {
+      state.error = null;
+    })
+    .addCase(addTask.fulfilled, (state, action) => {
+      state.tasks.push(action.payload);
+    })
+    .addCase(deleteTask.fulfilled, (state, action) => {
+      state.tasks = state.tasks.filter(task => task.id !== action.payload)
+    })
+    .addCase(toggleComplete.fulfilled, (state, action) => {
+      const completeTask = state.tasks.find(task => task.id === action.payload.id);
       if (completeTask) {
         completeTask.complete = !completeTask.complete;
       }
-    },
+    })
   }
 });
-
-export const {addTask, delteTask, toggleComplete} = todoSlice.actions;
 
 export default todoSlice.reducer;

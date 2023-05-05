@@ -1,6 +1,6 @@
-import { useState, FC } from "react";
+import { useState, useEffect, FC } from "react";
 import { useAppSelector, useAppDispatch } from "../app/hooks";
-import { addTask } from "../app/todoSlice";
+import { fetchTasks, addTask } from "../app/todoSlice";
 import Tasks from "./Tasks";
 import { Button, Input } from "@mui/joy";
 import Box from "@mui/joy/Box/Box";
@@ -30,7 +30,9 @@ const Todo: FC = () => {
 
     }
   }
-  console.log(tasks);
+  useEffect(() => {
+    dispatch(fetchTasks()); 
+  }, [dispatch]);
   
   return (
     <div className='todo'>
@@ -50,7 +52,7 @@ const Todo: FC = () => {
       </Box>
       {tasks.map((el, index) => {
         return (
-          <Tasks id={el.id} text={el.text} comlete={el.complete} key={index}></Tasks>
+          <Tasks id={el.id} text={el.text} complete={el.complete} key={index}></Tasks>
         )
       })}
     </div>
