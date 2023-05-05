@@ -26,10 +26,7 @@ const Todo: FC = () => {
     input : {
       flexGrow : 1,
     },
-    button : {
-
-    }
-  }
+  };
   useEffect(() => {
     dispatch(fetchTasks()); 
   }, [dispatch]);
@@ -46,11 +43,10 @@ const Todo: FC = () => {
         ></Input>
         <Button
           onClick={addTodo}
-          sx={styles.button}
           color="success"
         >OK</Button>
       </Box>
-      {tasks.map((el, index) => {
+      {[...tasks].reverse().map((el, index) => {
         return (
           <Tasks id={el.id} text={el.text} complete={el.complete} key={index}></Tasks>
         )
