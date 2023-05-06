@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import toast from 'react-hot-toast';
 
 interface ITask {
   id : number;
@@ -18,7 +19,7 @@ const initialState: IState = {
   error : null,
 }
 
-export const fetchTasks = createAsyncThunk<ITask[], undefined>(
+export const fetchTasks = createAsyncThunk<ITask[], undefined, { rejectValue: { message: string }}>(
   'todo/fetchTasks',
   async () => {
     const response = await fetch('http://localhost:3001/todo');
@@ -26,11 +27,9 @@ export const fetchTasks = createAsyncThunk<ITask[], undefined>(
   }
 );
 
-
-export const addTask = createAsyncThunk<ITask, string>(
+export const addTask = createAsyncThunk<ITask, string, { rejectValue: { message: string }}>(
   'todo/addTask',
   async (text) => {
-
     const data = {
       id : 0,
       text: text,
@@ -45,20 +44,34 @@ export const addTask = createAsyncThunk<ITask, string>(
       body: JSON.stringify(data)
     });
 
+    if (response.ok) {
+      toast.success('Task added!');
+    } else if (!response.ok) {
+      toast.error('Server error!');
+    }
+
     return response.json();
   }
 );
-export const deleteTask = createAsyncThunk<number, number>(
+
+export const deleteTask = createAsyncThunk<number, number, { rejectValue: { message: string }}>(
   'todo/deleteTask',
   async (id) => {
     const response = await fetch(`http://localhost:3001/todo/${id}`, {
       method: 'DELETE',
     });
 
+    if (response.ok) {
+      toast.success('Task deleted!');
+    } else if (!response.ok) {
+      toast.error('Server error!');
+    }
+
     return id;
   }
 );
-export const toggleComplete = createAsyncThunk<ITask, ITask>(
+
+export const toggleComplete = createAsyncThunk<ITask, ITask, { rejectValue: { message: string }}>(
   'todo/toggleComplete',
   async ({id, text, complete}) => { 
     const response = await fetch(`http://localhost:3001/todo/${id}`, {
@@ -71,6 +84,12 @@ export const toggleComplete = createAsyncThunk<ITask, ITask>(
         complete: !complete,
       })
     });
+
+    if (response.ok) {
+      toast.success('Task completed!');
+    } else if (!response.ok) {
+      toast.error('Server error!');
+    }
 
     return response.json();
   }
@@ -90,14 +109,23 @@ export const todoSlice = createSlice({
       state.tasks = action.payload;
       state.loading = false;
     })
+    .addCase(fetchTasks.rejected, (state) => {})
     .addCase(addTask.pending, (state) => {
       state.error = null;
     })
     .addCase(addTask.fulfilled, (state, action) => {
       state.tasks.push(action.payload);
     })
+    .addCase(addTask.rejected, (state) => {})
+    .addCase(deleteTask.pending, (state) => {
+      state.error = null;
+    })
     .addCase(deleteTask.fulfilled, (state, action) => {
       state.tasks = state.tasks.filter(task => task.id !== action.payload)
+    })
+    .addCase(deleteTask.rejected, (state) => {})
+    .addCase(toggleComplete.pending, (state) => {
+      state.error = null;
     })
     .addCase(toggleComplete.fulfilled, (state, action) => {
       const completeTask = state.tasks.find(task => task.id === action.payload.id);
@@ -105,6 +133,7 @@ export const todoSlice = createSlice({
         completeTask.complete = !completeTask.complete;
       }
     })
+    .addCase(toggleComplete.rejected, (state) => {})
   }
 });
 

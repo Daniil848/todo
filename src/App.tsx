@@ -1,11 +1,15 @@
-import React from 'react';
+import './index.css';
 import Todo from './components/Todo';
-import './App.css';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <div className="App">
       <Todo />
+      <Toaster
+        position="bottom-center"
+        reverseOrder={false}
+      />
     </div>
   );
 }
