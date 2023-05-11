@@ -5,37 +5,42 @@ interface ITask {
   id : number;
   text : string;
   complete : boolean;
-}
+};
 
 export interface IState {
   tasks : ITask[];
   loading : boolean,
   error : null | string,
-}
+};
 
 const initialState: IState = {
   tasks : [],
   loading : false,
   error : null,
-}
+};
 
-export const fetchTasks = createAsyncThunk<ITask[], undefined, { rejectValue: { message: string }}>(
+export const fetchTasks = createAsyncThunk<ITask[], undefined, {rejectValue: string}>(
   'todo/fetchTasks',
-  async () => {
+  async (_, {rejectWithValue}) => {
     const response = await fetch('http://localhost:3001/todo');
+    
+    if (!response.ok) {
+      return rejectWithValue('Server error!');
+    } 
+
     return response.json();
   }
 );
 
-export const addTask = createAsyncThunk<ITask, string, { rejectValue: { message: string }}>(
+export const addTask = createAsyncThunk<ITask, string, {rejectValue: string}>(
   'todo/addTask',
-  async (text) => {
+  async (text, {rejectWithValue}) => {
     const data = {
       id : 0,
       text: text,
       complete : false,
     }
-
+  
     const response = await fetch('http://localhost:3001/todo', {
       method: 'POST',
       headers: {
@@ -44,36 +49,36 @@ export const addTask = createAsyncThunk<ITask, string, { rejectValue: { message:
       body: JSON.stringify(data)
     });
 
-    if (response.ok) {
-      toast.success('Task added!');
-    } else if (!response.ok) {
+    if (!response.ok) {
       toast.error('Server error!');
+      return rejectWithValue('Server error!');
     }
 
+    toast.success('Task added!');
     return response.json();
   }
 );
 
-export const deleteTask = createAsyncThunk<number, number, { rejectValue: { message: string }}>(
+export const deleteTask = createAsyncThunk<number, number, {rejectValue: string}>(
   'todo/deleteTask',
-  async (id) => {
+  async (id, {rejectWithValue}) => {
     const response = await fetch(`http://localhost:3001/todo/${id}`, {
       method: 'DELETE',
     });
 
-    if (response.ok) {
-      toast.success('Task deleted!');
-    } else if (!response.ok) {
+    if (!response.ok) {
       toast.error('Server error!');
+      return rejectWithValue('Server error!');
     }
 
+    toast.success('Task deleted!');
     return id;
   }
 );
 
-export const toggleComplete = createAsyncThunk<ITask, ITask, { rejectValue: { message: string }}>(
+export const toggleComplete = createAsyncThunk<ITask, ITask, {rejectValue: string}>(
   'todo/toggleComplete',
-  async ({id, text, complete}) => { 
+  async ({id, text, complete}, {rejectWithValue}) => { 
     const response = await fetch(`http://localhost:3001/todo/${id}`, {
       method: 'PUT',
       headers: {
@@ -85,12 +90,12 @@ export const toggleComplete = createAsyncThunk<ITask, ITask, { rejectValue: { me
       })
     });
 
-    if (response.ok) {
-      toast.success('Task completed!');
-    } else if (!response.ok) {
+    if (!response.ok) {
       toast.error('Server error!');
+      return rejectWithValue('Server error!');
     }
 
+    toast.success('Task completed!');
     return response.json();
   }
 );
@@ -109,21 +114,18 @@ export const todoSlice = createSlice({
       state.tasks = action.payload;
       state.loading = false;
     })
-    .addCase(fetchTasks.rejected, (state) => {})
     .addCase(addTask.pending, (state) => {
       state.error = null;
     })
     .addCase(addTask.fulfilled, (state, action) => {
       state.tasks.push(action.payload);
     })
-    .addCase(addTask.rejected, (state) => {})
     .addCase(deleteTask.pending, (state) => {
       state.error = null;
     })
     .addCase(deleteTask.fulfilled, (state, action) => {
       state.tasks = state.tasks.filter(task => task.id !== action.payload)
     })
-    .addCase(deleteTask.rejected, (state) => {})
     .addCase(toggleComplete.pending, (state) => {
       state.error = null;
     })
@@ -133,7 +135,6 @@ export const todoSlice = createSlice({
         completeTask.complete = !completeTask.complete;
       }
     })
-    .addCase(toggleComplete.rejected, (state) => {})
   }
 });
 
