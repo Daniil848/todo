@@ -25,7 +25,10 @@ const Todo: FC = () => {
     },
     input : {
       flexGrow : 1,
+      '--Input-focusedHighlight' : 'none',
     },
+    button : {
+    }
   };
   useEffect(() => {
     dispatch(fetchTasks()); 
@@ -36,14 +39,15 @@ const Todo: FC = () => {
       <Box sx={styles.box}>
         <Input
           type="text"
+          variant="soft"
+          color="neutral"
           sx={styles.input}
-          color="success"
           value={text}
           onChange={e => setText(e.target.value)}
         ></Input>
         <Button
+          color="neutral"
           onClick={addTodo}
-          color="success"
         >OK</Button>
       </Box>
       {[...tasks].reverse().map((el, index) => {

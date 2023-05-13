@@ -23,7 +23,6 @@ export const fetchTasks = createAsyncThunk<ITask[], undefined, {rejectValue: str
   'todo/fetchTasks',
   async (_, {rejectWithValue}) => {
     const response = await fetch('http://localhost:3001/todo');
-    
     if (!response.ok) {
       return rejectWithValue('Server error!');
     } 

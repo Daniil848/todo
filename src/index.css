@@ -1,7 +1,5 @@
 body {
-  background-image: url(./img/low-poly-grid-haikei.svg);
-  background-color: rgba(0, 0, 0, 0.3);
-  background-blend-mode: multiply;
+  background-image: url('./img/low-poly-grid-haikei.svg');
   background-size: cover;
   background-position: center;
   overflow: hidden;
@@ -17,5 +15,5 @@ body {
 }
 
 .todo {
-  width: 300px;
+  width: 400px;
 }

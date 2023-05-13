@@ -20,9 +20,7 @@ const styles = {
     my : '10px',
     padding : '10px',
     boxSizing : 'border-box',
-    background : '#52BE80',
-    border : 2,
-    borderColor: '#1a7d36',
+    background : '#ebebef',
     borderRadius : '10px',
   },
   chip : {
@@ -31,8 +29,6 @@ const styles = {
     "--Chip-paddingInline" : "0px",
   },
   typography : {
-    color : 'white',
-    fonttWeight : '500',
     flexGrow : 1,
   }
 }
@@ -45,7 +41,8 @@ const Tasks: FC<ITasksProps> = (props) => {
   return (
     <Box sx={styles.box}>
       <Checkbox
-        color="success"
+        variant="solid"
+        color="neutral"
         checked={props.complete}
         onChange={() => dispatch(toggleComplete({
           id : props.id,
@@ -57,7 +54,8 @@ const Tasks: FC<ITasksProps> = (props) => {
         sx={styles.typography}
       >{props.text}</Typography>
       <Chip
-        color="success"
+        variant="solid"
+        color="neutral"
         sx={styles.chip}
         onClick={() => dispatch(deleteTask(props.id))}
       ><DeleteTwoToneIcon></DeleteTwoToneIcon></Chip>
