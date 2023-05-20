@@ -11,12 +11,14 @@ export interface IState {
   tasks : ITask[];
   loading : boolean,
   error : null | string,
+  editTask : number | null,
 };
 
 const initialState: IState = {
   tasks : [],
   loading : false,
   error : null,
+  editTask : null,
 };
 
 export const fetchTasks = createAsyncThunk<ITask[], undefined, {rejectValue: string}>(
@@ -34,18 +36,17 @@ export const fetchTasks = createAsyncThunk<ITask[], undefined, {rejectValue: str
 export const addTask = createAsyncThunk<ITask, string, {rejectValue: string}>(
   'todo/addTask',
   async (text, {rejectWithValue}) => {
-    const data = {
-      id : 0,
-      text: text,
-      complete : false,
-    }
   
     const response = await fetch('http://localhost:3001/todo', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify({
+        id : 0,
+        text: text,
+        complete : false,
+      })
     });
 
     if (!response.ok) {
@@ -99,10 +100,38 @@ export const toggleComplete = createAsyncThunk<ITask, ITask, {rejectValue: strin
   }
 );
 
+export const editTask = createAsyncThunk<ITask, ITask>(
+  'todo/editTask',
+   async ({id, text, complete}) => {
+    const response = await fetch(`http://localhost:3001/todo/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        text: text,
+        complete : complete,
+      })
+    });
+
+    if (!response.ok) {
+      toast.error('Server error!');
+    };
+    
+    toast.success('Task edited!');
+    return response.json();
+  }
+);
+
 export const todoSlice = createSlice({
   name : "todo",
   initialState,
-  reducers: {},
+  reducers: {
+    editClick(state, action) {
+      console.log(action.payload);
+      state.editTask = action.payload.id;
+    }
+  },
   extraReducers: (builder) => {
     builder
     .addCase(fetchTasks.pending, (state) => {
@@ -134,7 +163,16 @@ export const todoSlice = createSlice({
         completeTask.complete = !completeTask.complete;
       }
     })
+    .addCase(editTask.fulfilled, (state, action) => {
+      const task = state.tasks.find(task => task.id === action.payload.id);
+      if (task) {
+        task.text = action.payload.text;
+        state.editTask = null;
+      }
+    })
   }
 });
+
+export const {editClick} = todoSlice.actions;
 
 export default todoSlice.reducer;
