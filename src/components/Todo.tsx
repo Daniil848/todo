@@ -5,16 +5,31 @@ import Tasks from "./Tasks";
 import { Button, Input } from "@mui/joy";
 import Box from "@mui/joy/Box/Box";
 
-const Todo: FC = () => {  
+interface IProps {
+  userID : string,
+}
+
+const Todo: FC<IProps> = (props) => {  
   const tasks = useAppSelector(state => state.tasks.tasks);
   const dispatch = useAppDispatch();
   const [text, setText] = useState<string>('');
-  
-  const addTodo = () => {
+
+  useEffect(() => {
+
+    dispatch(fetchTasks()); 
+  }, [dispatch]); 
+
+  const HandleAddTask = () => {
     if (text === "") return;
-    dispatch(addTask(text));
+    dispatch(addTask({
+      id : 0,
+      text : text,
+      complete: false,
+      userID : props.userID,
+    }));
     setText('');
   };
+
   const styles = {
     box : {
       display : 'flex',
@@ -30,9 +45,6 @@ const Todo: FC = () => {
     button : {
     }
   };
-  useEffect(() => {
-    dispatch(fetchTasks()); 
-  }, [dispatch]);
   
   return (
     <div className='todo'>
@@ -47,12 +59,12 @@ const Todo: FC = () => {
         ></Input>
         <Button
           color="neutral"
-          onClick={addTodo}
+          onClick={HandleAddTask}
         >OK</Button>
       </Box>
-      {[...tasks].reverse().map((el, index) => {
+      {tasks.filter(el => el.userID === props.userID).reverse().map((el, index) => {
         return (
-          <Tasks id={el.id} text={el.text} complete={el.complete} key={index}></Tasks>
+          <Tasks userID={props.userID} id={el.id} text={el.text} complete={el.complete} key={index}></Tasks>
         )
       })}
     </div>

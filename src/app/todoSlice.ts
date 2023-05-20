@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import toast from 'react-hot-toast';
 
 interface ITask {
+  userID : string;
   id : number;
   text : string;
   complete : boolean;
@@ -33,9 +34,9 @@ export const fetchTasks = createAsyncThunk<ITask[], undefined, {rejectValue: str
   }
 );
 
-export const addTask = createAsyncThunk<ITask, string, {rejectValue: string}>(
+export const addTask = createAsyncThunk<ITask, ITask, {rejectValue: string}>(
   'todo/addTask',
-  async (text, {rejectWithValue}) => {
+  async ({id, text, complete, userID  }, {rejectWithValue}) => {
   
     const response = await fetch('http://localhost:3001/todo', {
       method: 'POST',
@@ -43,9 +44,10 @@ export const addTask = createAsyncThunk<ITask, string, {rejectValue: string}>(
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        id : 0,
+        id : id,
         text: text,
-        complete : false,
+        complete : complete,
+        userID : userID,
       })
     });
 
@@ -78,15 +80,17 @@ export const deleteTask = createAsyncThunk<number, number, {rejectValue: string}
 
 export const toggleComplete = createAsyncThunk<ITask, ITask, {rejectValue: string}>(
   'todo/toggleComplete',
-  async ({id, text, complete}, {rejectWithValue}) => { 
+  async ({id, text, complete, userID}, {rejectWithValue}) => { 
     const response = await fetch(`http://localhost:3001/todo/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        id : id,
         text: text,
         complete: !complete,
+        userID : userID,
       })
     });
 
@@ -100,22 +104,25 @@ export const toggleComplete = createAsyncThunk<ITask, ITask, {rejectValue: strin
   }
 );
 
-export const editTask = createAsyncThunk<ITask, ITask>(
+export const editTask = createAsyncThunk<ITask, ITask, {rejectValue: string}>(
   'todo/editTask',
-   async ({id, text, complete}) => {
+   async ({id, text, complete, userID}, {rejectWithValue}) => {
     const response = await fetch(`http://localhost:3001/todo/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
+        id : id,
         text: text,
         complete : complete,
+        userID : userID,
       })
     });
 
     if (!response.ok) {
       toast.error('Server error!');
+      return rejectWithValue('Server error!');
     };
     
     toast.success('Task edited!');
@@ -128,7 +135,6 @@ export const todoSlice = createSlice({
   initialState,
   reducers: {
     editClick(state, action) {
-      console.log(action.payload);
       state.editTask = action.payload.id;
     }
   },

@@ -7,9 +7,10 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DoneOutlineTwoToneIcon from '@mui/icons-material/DoneOutlineTwoTone';
 
 interface ITasksProps {
-  id : number,
-  text : string,
-  complete : boolean,
+  userID : string;
+  id : number;
+  text : string;
+  complete : boolean;
 }
 
 const Tasks: FC<ITasksProps> = (props) => {
@@ -52,10 +53,9 @@ const Tasks: FC<ITasksProps> = (props) => {
           id : props.id,
           text : props.text,
           complete : props.complete,
+          userID : props.userID,
         }))}
       ></Checkbox>
-
-      {}
 
       {isEdit ? 
         <input
@@ -79,6 +79,7 @@ const Tasks: FC<ITasksProps> = (props) => {
             id : props.id,
             text : editValue || props.text,
             complete : props.complete,
+            userID : props.userID,
           }))}
         ><DoneOutlineTwoToneIcon/></Chip>
       :

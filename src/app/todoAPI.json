@@ -1,3 +1,22 @@
 {
-  "todo": []
+  "todo": [
+    {
+      "id": 1,
+      "text": "312312312",
+      "complete": false,
+      "userID": "241fcbf6-d6d9-47d8-9c62-5199eb"
+    },
+    {
+      "id": 2,
+      "text": "3123",
+      "complete": false,
+      "userID": "241fcbf6-d6d9-47d8-9c62-5199ecdfe85b"
+    },
+    {
+      "id": 3,
+      "text": "312312",
+      "complete": false,
+      "userID": "241fcbf6-d6d9-47d8-9c62-5199ecdfe85b"
+    }
+  ]
 }
